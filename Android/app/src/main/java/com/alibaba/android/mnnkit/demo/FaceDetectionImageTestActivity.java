@@ -29,6 +29,7 @@ import com.alibaba.android.mnnkit.intf.InstanceCreatedListener;
 import com.tsia.example.mnnkitdemo.R;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.List;
 
 public class FaceDetectionImageTestActivity extends AppCompatActivity {
@@ -131,11 +132,41 @@ public class FaceDetectionImageTestActivity extends AppCompatActivity {
             return;
         }
 
-        Bitmap bitmap = BitmapFactory.decodeResource(FaceDetectionImageTestActivity.this.getResources(), R.mipmap.face_test);
+        Bitmap bitmap = Common.readImageFromAsset(getAssets(), "face_test.jpg");
+//        Bitmap bitmap = BitmapFactory.decodeResource(FaceDetectionImageTestActivity.this.getResources(), R.mipmap.face_test);
+        Log.d(TAG, "doDetect: " + String.format("width is %d, height is %d", bitmap.getWidth(), bitmap.getHeight()));
         long start = System.currentTimeMillis();
         FaceDetectionReport[] results = mFaceDetector.inference(bitmap, 0, 0, 0, MNNFlipType.FLIP_NONE);
 
         DrawResult(results, bitmap, System.currentTimeMillis() - start);
+        SaveResult(results);
+    }
+
+    private void SaveResult(FaceDetectionReport[] reports){
+        if (null == reports || reports.length == 0){
+            Log.d(TAG, "SaveResult: skip for zero face detect");
+            return;
+        }
+        DecimalFormat format = new DecimalFormat("0.000");
+        StringBuilder builder = new StringBuilder();
+        builder.append("version: 1\n")
+                .append("landmarks: 106\n")
+                .append("{\n");
+        FaceDetectionReport report = reports[0];
+        for (int j=0; j<106; j++) {
+
+            float keyX = report.keyPoints[j*2];
+            float keyY = report.keyPoints[j*2 + 1];
+            builder.append(format.format(keyX))
+                    .append(" ")
+                    .append(format.format(keyY))
+                    .append("\n");
+
+        }
+        builder.append("}");
+        File file = Environment.getExternalStoragePublicDirectory("facein");
+        File subFile = new File(file, "img.pts");
+        Common.write(subFile, builder.toString());
     }
 
     @Override

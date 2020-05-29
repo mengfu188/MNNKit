@@ -1,6 +1,10 @@
 package com.alibaba.android.mnnkit.demo.utils;
 
 import android.content.Context;
+import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -27,6 +31,19 @@ public class Common {
         is.close();
         fos.close();
         outF.setReadable(true);
+    }
+
+    public static Bitmap readImageFromAsset(AssetManager asset, String fileName) {
+        Bitmap bitmap = null;
+        InputStream ims = null;
+        try {
+            ims = asset.open(fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        bitmap =  BitmapFactory.decodeStream(ims);
+        Log.d(TAG, "bitmap config is " + bitmap.getConfig().toString());
+        return bitmap;
     }
 
     public static String read(File file){
