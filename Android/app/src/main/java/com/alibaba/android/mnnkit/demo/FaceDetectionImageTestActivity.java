@@ -32,6 +32,7 @@ public class FaceDetectionImageTestActivity extends AppCompatActivity {
     private Paint KeyPointsPaint = new Paint();
     private Paint ScorePaint = new Paint();
     private Paint TextPaint = new Paint();
+    private static final String TAG = "FaceDetectionImageTest";
 
     private SurfaceHolder mDrawSurfaceHolder;
 
@@ -67,7 +68,7 @@ public class FaceDetectionImageTestActivity extends AppCompatActivity {
         mDrawSurfaceHolder = drawView.getHolder();
 
         ImageView imageView = findViewById(R.id.imageView);
-        imageView.setImageResource(R.mipmap.face_girl);
+        imageView.setImageResource(R.mipmap.face_test);
 
         FaceDetector.FaceDetectorCreateConfig createConfig = new FaceDetector.FaceDetectorCreateConfig();
         createConfig.mode = FaceDetector.FaceDetectMode.MOBILE_DETECT_MODE_IMAGE;
@@ -96,6 +97,9 @@ public class FaceDetectionImageTestActivity extends AppCompatActivity {
                 doDetect();
                 return true;
 
+            case R.id.action_test:
+                Log.d(TAG, "onOptionsItemSelected: select action_test");
+
             default:
                 break;
         }
@@ -109,7 +113,7 @@ public class FaceDetectionImageTestActivity extends AppCompatActivity {
             return;
         }
 
-        Bitmap bitmap = BitmapFactory.decodeResource(FaceDetectionImageTestActivity.this.getResources(), R.mipmap.face_girl);
+        Bitmap bitmap = BitmapFactory.decodeResource(FaceDetectionImageTestActivity.this.getResources(), R.mipmap.face_test);
         long start = System.currentTimeMillis();
         FaceDetectionReport[] results = mFaceDetector.inference(bitmap, 0, 0, 0, MNNFlipType.FLIP_NONE);
 
@@ -119,7 +123,7 @@ public class FaceDetectionImageTestActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-        getMenuInflater().inflate(R.menu.menu_face_image, menu);
+        getMenuInflater().inflate(R.menu.menu_face_image_test, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
