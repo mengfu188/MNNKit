@@ -27,7 +27,7 @@ public class PermissionUtils {
                 runnable.run();
             } else {
                 ActivityCompat.requestPermissions(context,new String[]{Manifest.permission.CAMERA
-                    ,Manifest.permission.WRITE_EXTERNAL_STORAGE}, req);
+                    ,Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE}, req);
             }
         }else{
             runnable.run();
