@@ -28,6 +28,8 @@
         <activity
             android:name="com.alibaba.android.mnnkit.demo.VideoBaseActivity"
             android:label="@string/title_activity_video_base" />
+        <activity
+            android:name="com.alibaba.android.mnnkit.demo.FaceDetectionImageTestActivity"/>
         <activity android:name="com.alibaba.android.mnnkit.demo.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

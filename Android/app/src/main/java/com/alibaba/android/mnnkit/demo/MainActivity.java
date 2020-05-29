@@ -36,4 +36,8 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(MainActivity.this, PortraitSegmentationActivity.class));
     }
 
+    public void onImageTest(View v){
+        startActivity(new Intent(MainActivity.this, FaceDetectionImageTestActivity.class));
+    }
+
 }
