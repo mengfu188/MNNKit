@@ -119,6 +119,12 @@ public class FaceDetectionImageTestActivity extends AppCompatActivity {
                 File subFile = new File(file, "file.txt");
                 Common.write(subFile, "xxxxx");
                 Log.d(TAG, "onOptionsItemSelected: " + Common.read(subFile));
+                File dcim = Environment.getExternalStoragePublicDirectory("DCIM");
+                String[] suffixs = {".jpg", ".png"};
+                List<File> arr = Common.getFileList(dcim, suffixs);
+                for(File f:arr){
+                    Log.d(TAG, "onOptionsItemSelected: " + f.toString());
+                }
 
 
             default:

@@ -13,6 +13,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Common {
     public static String TAG = "MNNKitDemo";
@@ -44,6 +46,62 @@ public class Common {
         bitmap =  BitmapFactory.decodeStream(ims);
         Log.d(TAG, "bitmap config is " + bitmap.getConfig().toString());
         return bitmap;
+    }
+
+    public static String getSuffix(String string){
+        String[] part = string.split(".");
+        for(String p: part){
+            Log.d(TAG, "getSuffix: " + p);
+        }
+        if(null == part || part.length == 0){
+            return string;
+        }
+        return part[part.length - 1];
+    }
+
+    public static boolean filenameEndWith(File file, String[] suffixs){
+        boolean flag = false;
+        String path = file.getName();
+        for(String s:suffixs){
+            if(path.endsWith(s)){
+                flag = true;
+                break;
+            }
+        }
+        return flag;
+    }
+
+    public static List<File> getFileList(File file, String[] suffixs){
+        List<File> list = new ArrayList<>();
+        getFileList(file, list, suffixs);
+        return list;
+    }
+
+    public static boolean stringInList(String string, String[] strings){
+        boolean flag = false;
+        for(String s:strings){
+            if(string.equals(s)){
+                flag = true;
+                break;
+            }
+        }
+        return flag;
+    }
+
+    public static void getFileList(File file, List<File> list, String[] suffixs){
+        File[] fileList  = file.listFiles();
+        if(fileList == null || fileList.length == 0){
+            return;
+        }
+
+        for (File f : fileList){
+            if(f.isFile() && (suffixs == null || filenameEndWith(f, suffixs))){
+                list.add(f);
+            }
+            if(f.isDirectory()){
+                getFileList(f, list, suffixs);
+            }
+        }
     }
 
     public static String read(File file){
