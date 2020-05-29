@@ -1,6 +1,7 @@
 package com.alibaba.android.mnnkit.demo;
 
 
+import android.content.ContentResolver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -19,6 +20,7 @@ import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alibaba.android.mnnkit.actor.FaceDetector;
@@ -125,6 +127,8 @@ public class FaceDetectionImageTestActivity extends AppCompatActivity {
                 for(File f:arr){
                     Log.d(TAG, "onOptionsItemSelected: " + f.toString());
                 }
+            case R.id.action_batch:
+                doBatchDetect();
 
 
             default:
@@ -132,6 +136,42 @@ public class FaceDetectionImageTestActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    void doBatchDetect() {
+        if (mFaceDetector==null) {
+            Toast.makeText(this, "正在初始化...", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        String directory = ((TextView)findViewById(R.id.path)).getText().toString();
+        Log.d(TAG, "doBatchDetect: directory is " + directory);
+        File root = Environment.getExternalStoragePublicDirectory(directory);
+        Log.d(TAG, "doBatchDetect: root is " + root.toString());
+        String[] suffixs = {".jpg", ".png"};
+        List<File> arr = Common.getFileList(root, suffixs);
+        Log.d(TAG, "doBatchDetect: file list is " + arr.size());
+        for(File f: arr){
+            Bitmap bitmap = Common.readImageFromFile(f, getContentResolver());
+            if(null == bitmap){
+                continue;
+            }
+            Log.d(TAG, "doDetect: " + String.format("width is %d, height is %d", bitmap.getWidth(), bitmap.getHeight()));
+            long start = System.currentTimeMillis();
+            FaceDetectionReport[] results = mFaceDetector.inference(bitmap, 0, 0, 0, MNNFlipType.FLIP_NONE);
+
+            DrawResult(results, bitmap, System.currentTimeMillis() - start);
+            SaveResult(results, f);
+        }
+
+//        Bitmap bitmap = Common.readImageFromAsset(getAssets(), "face_test.jpg");
+////        Bitmap bitmap = BitmapFactory.decodeResource(FaceDetectionImageTestActivity.this.getResources(), R.mipmap.face_test);
+//        Log.d(TAG, "doDetect: " + String.format("width is %d, height is %d", bitmap.getWidth(), bitmap.getHeight()));
+//        long start = System.currentTimeMillis();
+//        FaceDetectionReport[] results = mFaceDetector.inference(bitmap, 0, 0, 0, MNNFlipType.FLIP_NONE);
+//
+//        DrawResult(results, bitmap, System.currentTimeMillis() - start);
+//        SaveResult(results);
     }
 
     void doDetect() {
@@ -148,6 +188,35 @@ public class FaceDetectionImageTestActivity extends AppCompatActivity {
 
         DrawResult(results, bitmap, System.currentTimeMillis() - start);
         SaveResult(results);
+    }
+
+    private void SaveResult(FaceDetectionReport[] reports, File image){
+        if (null == reports || reports.length == 0){
+            Log.d(TAG, "SaveResult: skip for zero face detect");
+            return;
+        }
+
+        DecimalFormat format = new DecimalFormat("0.000");
+        StringBuilder builder = new StringBuilder();
+        builder.append("version: 1\n")
+                .append("landmarks: 106\n")
+                .append("{\n");
+        FaceDetectionReport report = reports[0];
+        for (int j=0; j<106; j++) {
+
+            float keyX = report.keyPoints[j*2];
+            float keyY = report.keyPoints[j*2 + 1];
+            builder.append(format.format(keyX))
+                    .append(" ")
+                    .append(format.format(keyY))
+                    .append("\n");
+
+        }
+        builder.append("}");
+        File file = Environment.getExternalStoragePublicDirectory("facein");
+        File subFile = new File(file, "img.pts");
+//        Common.write(subFile, builder.toString());
+        Log.d(TAG, "SaveResult: " + builder.toString());
     }
 
     private void SaveResult(FaceDetectionReport[] reports){

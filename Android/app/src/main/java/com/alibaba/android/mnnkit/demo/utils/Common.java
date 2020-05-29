@@ -1,15 +1,18 @@
 package com.alibaba.android.mnnkit.demo.utils;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,6 +36,16 @@ public class Common {
         is.close();
         fos.close();
         outF.setReadable(true);
+    }
+
+    public static Bitmap readImageFromFile(File file, ContentResolver contentResolver){
+        Uri uri = Uri.fromFile(file);
+        try {
+            return BitmapFactory.decodeStream(contentResolver.openInputStream(uri));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static Bitmap readImageFromAsset(AssetManager asset, String fileName) {
