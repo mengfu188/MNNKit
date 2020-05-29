@@ -73,7 +73,9 @@ public class FaceDetectionImageTestActivity extends AppCompatActivity {
         mDrawSurfaceHolder = drawView.getHolder();
 
         ImageView imageView = findViewById(R.id.imageView);
-        imageView.setImageResource(R.mipmap.face_test);
+        Bitmap bitmap = Common.readImageFromAsset(getAssets(), "face_test.jpg");
+        imageView.setImageBitmap(bitmap);
+//        imageView.setImageResource(R.mipmap.face_test);
 
         FaceDetector.FaceDetectorCreateConfig createConfig = new FaceDetector.FaceDetectorCreateConfig();
         createConfig.mode = FaceDetector.FaceDetectMode.MOBILE_DETECT_MODE_IMAGE;
