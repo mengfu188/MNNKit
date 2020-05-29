@@ -9,6 +9,7 @@ import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
@@ -26,6 +27,9 @@ import com.alibaba.android.mnnkit.entity.FaceDetectionReport;
 import com.alibaba.android.mnnkit.entity.MNNFlipType;
 import com.alibaba.android.mnnkit.intf.InstanceCreatedListener;
 import com.tsia.example.mnnkitdemo.R;
+
+import java.io.File;
+import java.util.List;
 
 public class FaceDetectionImageTestActivity extends AppCompatActivity {
 
@@ -99,6 +103,20 @@ public class FaceDetectionImageTestActivity extends AppCompatActivity {
 
             case R.id.action_test:
                 Log.d(TAG, "onOptionsItemSelected: select action_test");
+//                File file = Environment.getExternalStorageDirectory();
+                File file = Environment.getExternalStoragePublicDirectory("facein");
+                Log.d(TAG, "onOptionsItemSelected: file " + file);
+                File[] list = file.listFiles();
+                for(int i = 0; i < list.length; i++){
+                    Log.d(TAG, "onOptionsItemSelected: " + list[i]);
+                    if(list[i].isFile()){
+                        Log.d(TAG, "onOptionsItemSelected: " + Common.read(list[i]));
+                    }
+                }
+                File subFile = new File(file, "file.txt");
+                Common.write(subFile, "xxxxx");
+                Log.d(TAG, "onOptionsItemSelected: " + Common.read(subFile));
+
 
             default:
                 break;
