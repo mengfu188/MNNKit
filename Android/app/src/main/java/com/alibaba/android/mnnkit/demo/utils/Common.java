@@ -141,9 +141,17 @@ public class Common {
     public static boolean write(File file, String content){
         try {
 //            File file = new File(filePath);
-            if (!file.exists()){
-                file.createNewFile();
+            if(!file.getParentFile().exists()){
+                if(!file.getParentFile().mkdirs()){
+                    return false;
+                }
             }
+            if (!file.exists()){
+                if(!file.createNewFile()){
+                    return false;
+                }
+            }
+
             FileOutputStream fos=new FileOutputStream(file);
             BufferedOutputStream bos=new BufferedOutputStream(fos);
 //            String content="xxxxxxxxx！";

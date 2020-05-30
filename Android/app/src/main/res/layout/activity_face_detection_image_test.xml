@@ -5,29 +5,48 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".FaceDetectionImageTestActivity">
-    
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:scaleType="fitStart"
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:src="@mipmap/face_img" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
+        <EditText
+            android:id="@+id/path"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:text="facein" />
 
-    <SurfaceView
-        android:id="@+id/points_view"
-        android:layout_alignParentTop="true"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        <ProgressBar
+            android:id="@+id/batch_processbar"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="1000"
+            android:progress="50" />
 
-    <EditText
-        android:id="@+id/path"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="facein" />
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scaleType="fitStart"
+                android:src="@mipmap/face_img" />
+
+            <SurfaceView
+                android:id="@+id/points_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentTop="true" />
+        </FrameLayout>
+
+    </LinearLayout>
 
 
 </FrameLayout>

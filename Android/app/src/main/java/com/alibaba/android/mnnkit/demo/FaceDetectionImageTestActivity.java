@@ -20,19 +20,25 @@ import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alibaba.android.mnnkit.actor.FaceDetector;
 import com.alibaba.android.mnnkit.demo.utils.Common;
+import com.alibaba.android.mnnkit.entity.FaceDetectConfig;
 import com.alibaba.android.mnnkit.entity.FaceDetectionReport;
 import com.alibaba.android.mnnkit.entity.MNNFlipType;
 import com.alibaba.android.mnnkit.intf.InstanceCreatedListener;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.tsia.example.mnnkitdemo.R;
 
 import java.io.File;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class FaceDetectionImageTestActivity extends AppCompatActivity {
 
@@ -114,8 +120,9 @@ public class FaceDetectionImageTestActivity extends AppCompatActivity {
                 File[] list = file.listFiles();
                 for(int i = 0; i < list.length; i++){
                     Log.d(TAG, "onOptionsItemSelected: " + list[i]);
-                    if(list[i].isFile()){
-                        Log.d(TAG, "onOptionsItemSelected: " + Common.read(list[i]));
+                    if(list[i].isFile() && file.length() < 10000){
+
+                        Log.d(TAG, "onOptionsItemSelected: " + +file.length() + Common.read(list[i]));
                     }
                 }
                 File subFile = new File(file, "file.txt");
@@ -123,19 +130,39 @@ public class FaceDetectionImageTestActivity extends AppCompatActivity {
                 Log.d(TAG, "onOptionsItemSelected: " + Common.read(subFile));
                 File dcim = Environment.getExternalStoragePublicDirectory("DCIM");
                 String[] suffixs = {".jpg", ".png"};
-                List<File> arr = Common.getFileList(dcim, suffixs);
-                for(File f:arr){
-                    Log.d(TAG, "onOptionsItemSelected: " + f.toString());
-                }
+//                List<File> arr = Common.getFileList(dcim, suffixs);
+//                for(File f:arr){
+//                    Log.d(TAG, "onOptionsItemSelected: " + f.toString());
+//                }
+                updateBar(100, new Random().nextInt(100));
+
+                JSONArray jsonArray = new JSONArray();
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("abc", 1234);
+                jsonArray.add(jsonObject);
+                Log.d(TAG, "onOptionsItemSelected: " + jsonArray.toJSONString());
+
+                break;
             case R.id.action_batch:
                 doBatchDetect();
-
+                break;
 
             default:
                 break;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    void updateBar(int max, final int value){
+        final ProgressBar bar = findViewById(R.id.batch_processbar);
+        bar.setMax(max);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                bar.setProgress(value);
+            }
+        });
     }
 
     void doBatchDetect() {
@@ -151,7 +178,8 @@ public class FaceDetectionImageTestActivity extends AppCompatActivity {
         String[] suffixs = {".jpg", ".png"};
         List<File> arr = Common.getFileList(root, suffixs);
         Log.d(TAG, "doBatchDetect: file list is " + arr.size());
-        for(File f: arr){
+        for(int i = 0; i < arr.size(); i++){
+            File f = arr.get(i);
             Bitmap bitmap = Common.readImageFromFile(f, getContentResolver());
             if(null == bitmap){
                 continue;
@@ -161,7 +189,9 @@ public class FaceDetectionImageTestActivity extends AppCompatActivity {
             FaceDetectionReport[] results = mFaceDetector.inference(bitmap, 0, 0, 0, MNNFlipType.FLIP_NONE);
 
             DrawResult(results, bitmap, System.currentTimeMillis() - start);
-            SaveResult(results, f);
+//            SaveResult(results, f);
+            SaveResultJsonFormat(results, f);
+            updateBar(arr.size(), i);
         }
 
 //        Bitmap bitmap = Common.readImageFromAsset(getAssets(), "face_test.jpg");
@@ -184,10 +214,26 @@ public class FaceDetectionImageTestActivity extends AppCompatActivity {
 //        Bitmap bitmap = BitmapFactory.decodeResource(FaceDetectionImageTestActivity.this.getResources(), R.mipmap.face_test);
         Log.d(TAG, "doDetect: " + String.format("width is %d, height is %d", bitmap.getWidth(), bitmap.getHeight()));
         long start = System.currentTimeMillis();
-        FaceDetectionReport[] results = mFaceDetector.inference(bitmap, 0, 0, 0, MNNFlipType.FLIP_NONE);
-
+        long detectConfig = FaceDetectConfig.ACTIONTYPE_EYE_BLINK| FaceDetectConfig.ACTIONTYPE_MOUTH_AH|FaceDetectConfig.ACTIONTYPE_HEAD_YAW|FaceDetectConfig.ACTIONTYPE_HEAD_PITCH|FaceDetectConfig.ACTIONTYPE_BROW_JUMP;
+        FaceDetectionReport[] results = mFaceDetector.inference(bitmap, detectConfig, 0, 0, MNNFlipType.FLIP_NONE);
+        Log.d(TAG, "doDetect: " + JSONObject.toJSONString(results));
         DrawResult(results, bitmap, System.currentTimeMillis() - start);
         SaveResult(results);
+    }
+
+    private void SaveResultJsonFormat(FaceDetectionReport[] reports, File image){
+        if (null == reports || reports.length == 0){
+            Log.d(TAG, "SaveResult: skip for zero face detect");
+            return;
+        }
+        String imageFile = image.getName().split("\\.")[0];
+        String parent = image.getParentFile().getAbsolutePath();
+        String saveParent = parent + "_save";
+        File saveParentFile = new File(saveParent);
+        File saveFile = new File(saveParentFile, imageFile + ".json");
+
+        String result = JSONArray.toJSONString(reports);
+        Common.write(saveFile, result);
     }
 
     private void SaveResult(FaceDetectionReport[] reports, File image){
